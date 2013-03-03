@@ -1,0 +1,4 @@
+<div>
+  Quick fix for <a href="https://issues.jenkins-ci.org/browse/JENKINS-15156" title="[#JENKINS-15156] Builds disappear from build history after completion - Jenkins JIRA">Jenkins-15156</a>.
+  Uninstall me when Jenkins updaded to fix JENKINS-15156.
+</div>
