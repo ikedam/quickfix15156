@@ -29,7 +29,7 @@ Target Versions
 ---------------
 
 This plugin tested with Jenkins 1.502.
-It may run with older versions of Jenkins, assumed after 1.486 (the version Jenkins-15156 happened).
+It may run with older versions of Jenkins, assumed 1.488 and later (the version Jenkins-15156 happened).
 
 How to install
 --------------
@@ -44,5 +44,5 @@ If you find a problem with this plugin, please report with [github repositry iss
 TODO
 ----
 
-* Test with Jenkins 1.486.
+* Test with Jenkins 1.488.
 * Test with Jenkins 1.505.
