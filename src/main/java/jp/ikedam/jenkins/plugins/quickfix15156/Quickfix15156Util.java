@@ -23,16 +23,21 @@
  */
 package jp.ikedam.jenkins.plugins.quickfix15156;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.model.Jenkins;
 import jenkins.model.lazy.AbstractLazyLoadRunMap;
 
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixProject;
 import hudson.model.RunMap;
+import hudson.model.RunMap.Constructor;
+import hudson.model.AbstractProject;
 
 public class Quickfix15156Util
 {
@@ -98,6 +103,22 @@ public class Quickfix15156Util
         return true;
     }
     
+    static private class MatrixRunConstructor implements Constructor<MatrixRun>
+    {
+        private MatrixConfiguration c;
+        
+        MatrixRunConstructor(MatrixConfiguration c)
+        {
+            this.c = c;
+        }
+        
+        @Override
+        public MatrixRun create(File dir) throws IOException
+        {
+            return new MatrixRun(c, dir);
+        }
+    }
+    
     static public void fixMatrixConfigurations(MatrixProject project)
     {
         for(MatrixConfiguration c: project.getItems())
@@ -105,7 +126,23 @@ public class Quickfix15156Util
             if(!isInitialized(c))
             {
                 LOGGER.info(String.format("Initialize %s", c.toString()));
-                c.onCreatedFromScratch();
+                // this works only for Jenkins 1.502...
+                // c.onCreatedFromScratch();
+                try
+                {
+                    RunMap<MatrixRun> builds = new RunMap<MatrixRun>(
+                            Jenkins.getInstance().getBuildDirFor(c),
+                            new MatrixRunConstructor(c)
+                    );
+                    Field buildsField = AbstractProject.class.getDeclaredField("builds");
+                    
+                    buildsField.setAccessible(true);
+                    buildsField.set(c, builds);
+                }
+                catch (Exception e)
+                {
+                    LOGGER.log(Level.WARNING, "Failed to access private fields", e);
+                }
             }
         }
     }
