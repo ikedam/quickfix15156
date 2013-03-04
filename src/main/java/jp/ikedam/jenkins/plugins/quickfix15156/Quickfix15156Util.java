@@ -119,29 +119,49 @@ public class Quickfix15156Util
         }
     }
     
+    static protected void createBuilds(MatrixConfiguration c)
+    {
+        try
+        {
+            RunMap<MatrixRun> builds = new RunMap<MatrixRun>(
+                    Jenkins.getInstance().getBuildDirFor(c),
+                    new MatrixRunConstructor(c)
+            );
+            Field buildsField = AbstractProject.class.getDeclaredField("builds");
+            
+            buildsField.setAccessible(true);
+            buildsField.set(c, builds);
+        }
+        catch (Exception e)
+        {
+            LOGGER.log(Level.WARNING, "Failed to access private fields", e);
+        }
+    }
+    
     static public void fixMatrixConfigurations(MatrixProject project)
     {
+        try
+        {
+            project.getItems();
+        }
+        catch(NullPointerException e)
+        {
+            // In some versions (I saw it with 1.487), MatrixConfiguration.configurations
+            // is not set with onChange for a new created job.
+            // In that case, I can do nothing.
+            return;
+        }
         for(MatrixConfiguration c: project.getItems())
         {
             if(!isInitialized(c))
             {
                 LOGGER.info(String.format("Initialize %s", c.toString()));
-                // this works only for Jenkins 1.502...
-                // c.onCreatedFromScratch();
-                try
+                // this works only for Jenkins 1.502 and later...
+                c.onCreatedFromScratch();
+                if(!isInitialized(c))
                 {
-                    RunMap<MatrixRun> builds = new RunMap<MatrixRun>(
-                            Jenkins.getInstance().getBuildDirFor(c),
-                            new MatrixRunConstructor(c)
-                    );
-                    Field buildsField = AbstractProject.class.getDeclaredField("builds");
-                    
-                    buildsField.setAccessible(true);
-                    buildsField.set(c, builds);
-                }
-                catch (Exception e)
-                {
-                    LOGGER.log(Level.WARNING, "Failed to access private fields", e);
+                    // for prior to 1.502.
+                    createBuilds(c);
                 }
             }
         }
