@@ -6,7 +6,8 @@ Quickfix plugin for [Jenkins-15156](https://issues.jenkins-ci.org/browse/JENKINS
 What's this?
 ------------
 
-This plugin is quick fix for [Jenkins-15156](https://issues.jenkins-ci.org/browse/JENKINS-15156), "Builds disappear from build history after completion".
+This plugin is a quick fix for [Jenkins-15156](https://issues.jenkins-ci.org/browse/JENKINS-15156), "Builds disappear from build history after completion".
+This fixes the problem appearing in multi-configuration projects.
 
 How does this work?
 -------------------
@@ -43,13 +44,18 @@ Target Versions
 Jenkins-15156 happens in 1.485 and later.
 This plugin tested with Jenkins 1.485, 1.487, 1.502.
 
-Jenkins 1.485 have the bug that builds of any new created project disapper.
-This plugin does not care that bug.
-
 How to install
 --------------
 
 See [Jenkins update center for ikedam plugins](http://ikedam.github.com/jenkins-update-center/), and follow the instruction to have your Jenkins to access my update center.
+
+Limitations
+-----------
+
+In some old version Jenkins-15156 happens not only in multi-configuration projects, 
+but also in any type of projects.
+This plugin fixes only Jenkins-15156 in multi-configuration projects, and does not care
+about Jenkins-15156 in projects of other type.
 
 Bug Reports
 -----------
